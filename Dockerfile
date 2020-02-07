@@ -13,5 +13,6 @@ CMD [ "python", "./pymqttbridge.py", "-s", "/dev/ttyACM0", "-b", "192.168.123.1"
 # -u username at broker
 # -pw password at broker
 # -c channel at broker
+# -l loglevel, prints ThreadIPs if debug
 # docker build -t pymqttbridge .
 # docker run -d --device=/dev/ttyACM0 pymqttbridge

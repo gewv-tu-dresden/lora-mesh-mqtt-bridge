@@ -66,6 +66,11 @@ def parse_args():
                         type=str,
                         help='Specify the mqtt channel messages should be send to. Default %(default)',
                         default='test')
+    parser.add_argument('-l', '--loglevel',
+                        dest='loglevel',
+                        type=str,
+                        help='Set loglevel to info or debug. Default %(default)',
+                        default='info')
     return parser.parse_args()
 
 
@@ -105,8 +110,9 @@ def bridge(serialport=None, mqttclient=None, channel='test'):
     serialport.write('\r\n'.encode('ascii'))
     serialport.write('udp open\r\n'.encode('ascii'))
     serialport.write('udp bind :: 1212\r\n'.encode('ascii'))
+    serialport.reset_input_buffer()
+    serialport.write('ipaddr\r\n'.encode('ascii'))
     while True:
-        serialport.reset_input_buffer()
         serialport.write('\r\n'.encode('ascii'))
         try:
             data = [line.decode('ascii')[:-2] for line in serialport.readlines()
@@ -127,9 +133,8 @@ def bridge(serialport=None, mqttclient=None, channel='test'):
 
 if __name__ == '__main__':
     args = parse_args()
-    llevel = logging.INFO
+    llevel = logging.DEBUG if args.loglevel == 'debug' else logging.INFO
     logging.basicConfig(
-#        filename='bridge.log', level=llevel, format='%(asctime)s %(levelname)s\t %(message)s', filemode='w')
         level=llevel, format='%(asctime)s %(levelname)s\t %(message)s', filemode='w')
     serial = serial_connect(port=args.serial, speed=args.speed, timeout=args.timeout)
     mqttcli = mqtt_connect(broker=args.broker, port=args.port, username=args.user, password=args.password,
