@@ -101,9 +101,13 @@ def bridge(serialport=None, mqttclient=None, channel='test'):
     """Read incomming messages from serial port and bridge them to mqtt."""
     if serialport is None or mqttclient is None:
         return
+    serialport.reset_input_buffer()
+    serialport.write('\r\n'.encode('ascii'))
+    serialport.write('udp open\r\n'.encode('ascii'))
+    serialport.write('udp bind :: 1212\r\n'.encode('ascii'))
     while True:
         serialport.reset_input_buffer()
-        serialport.write("\r\n".encode('ascii'))
+        serialport.write('\r\n'.encode('ascii'))
         try:
             data = [line.decode('ascii')[:-2] for line in serialport.readlines()
                     if line not in [b'\r\n', b'> \r\n', b'> ']]
@@ -123,9 +127,10 @@ def bridge(serialport=None, mqttclient=None, channel='test'):
 
 if __name__ == '__main__':
     args = parse_args()
-    llevel = logging.DEBUG
+    llevel = logging.INFO
     logging.basicConfig(
-        filename='bridge.log', level=llevel, format='%(asctime)s %(levelname)s\t %(message)s', filemode='w')
+#        filename='bridge.log', level=llevel, format='%(asctime)s %(levelname)s\t %(message)s', filemode='w')
+        level=llevel, format='%(asctime)s %(levelname)s\t %(message)s', filemode='w')
     serial = serial_connect(port=args.serial, speed=args.speed, timeout=args.timeout)
     mqttcli = mqtt_connect(broker=args.broker, port=args.port, username=args.user, password=args.password,
                            channel=args.channel, interface=args.interface)
