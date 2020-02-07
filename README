@@ -1,0 +1,1 @@
+Simple bridge between serial port and mqtt broker. Intended to work with nrf52840.
